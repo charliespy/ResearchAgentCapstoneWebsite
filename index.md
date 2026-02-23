@@ -21,51 +21,72 @@ description: A Mobile-First Agentic Interface for Monitoring and Steering Machin
 
 ---
 
-## 1. Introduction
+1. Introduction
 
-<!-- 
-Hook the reader with a relatable scenario:
+In the rapidly evolving domain of deep learning research, the efficiency of the scientific cycle
+is increasingly limited not by the availability of raw compute, but by the researcher’s capac-
+ity to maintain continuous oversight of experimental states. As machine learning models
+grow in complexity and training pipelines extend over days or weeks, the cognitive burden
+of monitoring multiple concurrent processes has become a primary bottleneck. The pre-
+vailing workflow relies heavily on synchronous desktop-bound interaction–using tools such
+as SSH terminals and large-screen dashboards such as TensorBoard–which fails to account
+for the asynchronous reality of modern model training. This rigidity forces researchers to
+structure their lives around their experiments, tethering them to workstations to ensure
+runs do not fail unobserved.
 
-Training a large ML model can take days — or even weeks. During that time,
-things go wrong: losses spike, GPUs crash, hyperparameters diverge. But today's
-monitoring tools (TensorBoard, SSH terminals, WandB dashboards) all assume
-you're sitting at a desktop. Step away for a meeting, a commute, or dinner,
-and you're flying blind.
+This reliance on desktop-centric tooling creates a significant ”blind spot” in the research
+workflow . Standard observability tools are poorly optimized for mobile devices, touch inter-
+faces, or intermittent network connectivity . Consequently , when researchers are traveling,
+in meetings, or simply away from their desks, they lose the ability to effectively supervise
+their work. This physical constraint leads to tangible resource waste: critical failures–such
+as hyperparameter divergence, metric collapse, or infrastructure crashes–often go unno-
+ticed for hours until the researcher returns to their desk. The result is a cycle of delayed
+insights and wasted computational credits, driven purely by the lack of a flexible supervision
+interface.
 
-The cost is real: unnoticed failures waste hundreds of GPU-hours and stall
-research for days. What if you could check on your experiments, get intelligent
-alerts, and even fix problems — all from your phone?
+To address these limitations, this project introduces Research Agent Mobile, a specialized
+system that decouples experiment management from the desktop environment. The project
+has a concrete objective: minimize the latency between an experimental deviation and
+an actionable human response. Unlike passive monitoring dashboards that merely display
+static charts, this system functions as an active, intelligent partner in the research process.
+It establishes a ”mobile control plane” specifically optimized for small viewports, allowing
+researchers to maintain high-level supervision and situational awareness regardless of their
+physical location.
 
-That's what Research Agent Mobile does.
-
-Include: a figure or illustration showing the "before vs. after" workflow
-(e.g., desktop-only monitoring vs. mobile + agent monitoring)
--->
-
-<!-- ![Before vs. After workflow](assets/img/workflow-comparison.png) -->
+The core philosophy of Research Agent Mobile is to empower the researcher with actionable
+intervention capabilities rather than passive visibility . The system allows users to monitor
+the health of runs via prioritized, context-sensitive alerts and perform safe, immediate in-
+terventions such as stopping a failing run, restarting a stalled job, or launching a new
+hyperparameter sweep without ever returning to a workstation. By facilitating these inter-
+actions through a mobile-first interface, the system bridges the gap between the demanding
+requirements of deep learning training and the mobility of the modern researcher .
 
 ---
 
-## 2. System Overview
+2. System Overview
 
-<!-- 
-Plain-language description of the system for a general audience:
+To realize the vision of a mobile-first research workflow , we engineered Research Agent
+Mobile as a dual-component distributed system. The architecture is designed to bridge
+the gap between ephemeral mobile interactions and persistent, long-running server pro-
+cesses. High-level, the system integrates a high-performance Next.js frontend–specifically
+optimized for the constraints of mobile viewports and touch latency–with a robust Python-
+based orchestration backend.
 
-Research Agent Mobile is a web application with two halves:
+This separation of concerns is critical. The backend manages job execution via persistent
+tmux sessions, ensuring that computationally intensive training processes remain stable and
+recoverable even if the client device loses connectivity or runs out of battery . Simultane-
+ously , the frontend acts as a unified ”command center ,” decoupling the user from the raw
+execution environment while providing a control plane for visualizing real-time metrics,
+managing hyperparameter configurations, and inspecting generated artifacts.
 
-- A **responsive frontend** built with Next.js, designed from the ground up
-  for phones and tablets (down to 300px wide).
-- A **Python backend** (FastAPI) that manages your training jobs, streams logs,
-  and hosts an AI agent that can reason about your experiments in real time.
-
-Together they give you a "mobile control plane" — a single place to see what's
-running, ask the AI what's going wrong, and take action without opening a laptop.
-
-Include: a simplified architecture diagram
-(Frontend ↔ Backend ↔ GPU Cluster, with the AI agent in the middle)
--->
-
-<!-- ![Architecture diagram](assets/img/architecture.png) -->
+Central to our methodology is the embedding of a context-aware Large Language Model
+(LLM) agent directly into the experiment control loop. Unlike standard wrappers, this agent
+is granted read-and-write access to the experiment’s execution context. This capability
+enables it to interpret complex log streams, answer natural language queries regarding
+training dynamics (e.g., ”Why is the loss diverging?”), and autonomously flag anomalies. By
+synthesizing raw telemetry into semantic insights, the system transforms the mobile device
+from a passive monitor into an active tool for high-level reasoning, allowing researchers to
+collaborate with the system as they would with a peer .
 
 ---
 
@@ -73,103 +94,91 @@ Include: a simplified architecture diagram
 
 ### 3.1 Mobile-First Interface
 
-<!-- 
-- Designed for phones and tablets from day one — not a shrunken desktop app.
-- Custom UI engine handles font scaling, button sizing, and layout density
-  across every screen size.
-- Touch-optimized controls for common actions (stop run, restart, launch sweep).
-
-Include: side-by-side screenshot of mobile vs. desktop view
--->
-
-<!-- ![Mobile vs. Desktop](assets/img/mobile-desktop.png) -->
+Standard web interfaces for experiment tracking often fail on mobile devices due to poor re-
+sponsiveness and clutter . To address this, we implemented a responsive, dual-layout system
+using Next.js 16. A primary engineering focus was the ”mobile-first” design philosophy , en-
+suring the application adapts fluidly between minimum mobile viewports (down to 300px
+width) and full desktop environments without loss of functionality . We developed a cus-
+tom UI engine to resolve critical overflow issues common in standard CSS viewport queries.
+This engine allows users to granularly adjust font scaling, button sizing, and layout density ,
+ensuring usability is maintained regardless of the specific device hardware.
 
 ### 3.2 AI-Powered Chat Assistant
 
-<!-- 
-- Talk to your experiments in plain English.
-  Ask "Why is the loss diverging?" and get an answer grounded in your actual logs.
-- The agent can read logs, interpret metrics, and suggest fixes.
-- Interruptible workflows: the agent pauses and asks for confirmation before
-  doing anything destructive (like stopping a run).
+The chat interface – the central hub for human-agent collaboration – was re-architected to
+support complex, non-linear workflows. We moved beyond simple request-response loops
+to a state-managed message queue. This allows users to queue multiple commands, reorder
+tasks, and utilize ”interruptible” states, giving the agent the ability to pause execution to
+request human feedback before proceeding with destructive actions (such as terminating a
+run).
 
-Include: screenshot of the chat interface with an example conversation
--->
-
-<!-- ![Chat interface](assets/img/chat.png) -->
-
-<details>
-<summary>Technical details: how the chat agent works</summary>
-
-<!--
-- The backend captures the full "cognitive chain" — internal thought, tool
-  execution, and final response — and renders each step in the UI.
-- Session isolation prevents context bleeding between concurrent experiments.
-- A "quote-and-reply" feature lets you reference specific log lines in the chat.
--->
-
-</details>
+On the backend, we refactored the data serialization format to accurately preserve the ”cog-
+nitive chain” of the AI model. Rather than flattening the interaction history into simple text,
+the system captures and renders the precise sequence of internal thought, tool execution, and
+final text response. This granular fidelity is visualized in the frontend through distinct UI ele-
+ments, distinguishing internal reasoning from external output. This transparency is vital for
+building user trust in the agent’s decisions. Additional enhancements include session isola-
+tion to prevent context bleeding between concurrent experiments, and a ”quote-and-reply”
+feature that mirrors desktop-grade IDE interactions, enabling researchers to reference spe-
+cific log lines or code blocks directly in the chat for targeted debugging.
 
 ### 3.3 Real-Time Visualization
 
-<!-- 
-- Interactive, client-side charts for training metrics (loss, accuracy, learning rate, etc.)
-- Weights & Biases (WandB) integration — pull in your existing dashboards.
-- Toggle metric visibility, adjust axes, manage chart density — all from mobile.
-- "Insight Charts": the AI agent can autonomously generate visualizations
-  to surface patterns you might miss.
+Effective research requires immediate, interpretable visual feedback on training dynam-
+ics. We integrated a flexible charting engine capable of interfacing with standard logging
+frameworks like Weights & Biases (WandB). However , simply rendering external iframes
+is insufficient for mobile contexts. Our system implements interactive, client-side charts
+that allow users to toggle metric visibility , dynamically adjust axis scaling without page
+re-renders, and manage chart density via a dedicated management popup.
 
-Include: screenshot of a chart view on mobile
--->
-
-<!-- ![Charts](assets/img/charts.png) -->
+We are currently extending this module to support ”Insight Charts”–custom visualizations
+generated autonomously by the agent. By granting the agent direct access to raw metric
+streams, it can identify patterns that a human might overlook. The agent can proactively
+propose and generate comparative visualizations–such as radar charts for data mixture
+analysis or video comparisons at specific training steps–without explicit user configura-
+tion. This shifts visualization from a reactive task (plotting what you know to look for) to
+a proactive one (surfacing anomalies through automated plotting and color-coded stability
+indicators).
 
 ### 3.4 Research Journey
 
-<!-- 
-- A "semantic git" for your research process — not just code commits,
-  but the decisions and reasoning behind them.
-- Visualize your project as a branching graph of hypotheses, experiments,
-  and outcomes.
-- The AI agent can review your journey and suggest what to try next,
-  based on what has (and hasn't) worked before.
+Scientific discovery is rarely a linear path; it is a branching tree of hypotheses, failures,
+and refinements. Traditional version control systems track code changes but fail to cap-
+ture the logic and decision-making process behind those changes. We introduce the ”Re-
+search Journey”–a hierarchical, temporal visualization of the research lifecycle that effec-
+tively functions as a ”semantic git” for experimental logic.
 
-Include: screenshot or mockup of the Research Journey view
--->
-
-<!-- ![Research Journey](assets/img/research-journey.png) -->
+This feature allows researchers to visualize their project trajectory not as a flat list of com-
+mits, but as a branching graph of decisions and outcomes. This structure enables deep ret-
+rospective analysis: researchers can inspect the ”journey” to identify high-cost paths that
+yielded low information gain, optimizing resource allocation for future iterations. Further-
+more, by structuring history hierarchically , we empower the AI agent to perform ”meta-
+analysis.” The agent can review the project’s entire branching history , reflecting on past
+failures to recommend optimized directions for future experiments. This transforms the
+history log from a passive record into an active knowledge base, significantly reducing the
+cognitive load required to context-switch between long-running experiments.
 
 ### 3.5 Autonomous Monitoring (Wild Loop)
 
-<!-- 
-- The agent runs continuously on the server — even when your phone is off.
-- It watches your training logs and detects anomalies in real time
-  (e.g., loss spikes > 50%, stalled progress, GPU errors).
-- When something goes wrong, you get an instant alert on your phone
-  with a summary and suggested action.
-- Configurable autonomy: set the agent to just notify you, or let it
-  take corrective action automatically.
+The core intelligence of the platform is driven by the ”Wild Loop,” an autonomous execution
+environment that operates on the server independently of direct user interaction. This
+backend architecture allows the agent to continuously monitor tmux sessions, parse real-
+time logs, and execute interventions based on pre-defined heuristics or emergent anomalies
+(e.g., ”stop training if loss spikes > 50%”).
 
-Include: diagram of the Wild Loop (server agent → anomaly detection → mobile alert)
--->
+To standardize the agent’s interaction with external tools and the file system, we adopted
+the Model Context Protocol (MCP). MCP provides a universal interface for the agent to
+connect with new libraries, custom scripts, or data sources without requiring core backend
+refactoring. This modularity ensures the system is extensible; adding a new capability (e.g.,
+querying a new dataset) is as simple as registering a new MCP tool.
 
-<!-- ![Wild Loop](assets/img/wild-loop.png) -->
-
-<details>
-<summary>Technical details: Wild Loop & MCP</summary>
-
-<!--
-- The Wild Loop is a backend execution environment that monitors tmux sessions,
-  parses real-time logs, and triggers interventions based on heuristics or
-  emergent anomalies.
-- We use the Model Context Protocol (MCP) to standardize how the agent
-  interacts with external tools — adding a new capability is as simple as
-  registering a new MCP tool.
-- A prioritized event queue ensures mobile alerts contain synthesized
-  intelligence, not raw noise.
--->
-
-</details>
+The ”Wild Loop” is highly configurable, allowing users to define the boundaries of the
+agent’s autonomy–ranging from passive monitoring to active hyperparameter tuning. By
+integrating these loops with a prioritized event queue system, alerts generated during au-
+tonomous operation are pushed instantly to the mobile client. This architecture ensures the
+mobile device acts as a high-level command center , receiving synthesized intelligence and
+strategic decision points rather than raw noise, thereby enabling effective ”human-in-the-
+loop” supervision for otherwise autonomous research workflows.
 
 ---
 
