@@ -21,7 +21,7 @@ description: A Mobile-First Agentic Interface for Monitoring and Steering Machin
 
 ---
 
-1. Introduction
+## 1. Introduction
 
 In the rapidly evolving domain of deep learning research, the efficiency of the scientific cycle
 is increasingly limited not by the availability of raw compute, but by the researcher’s capac-
@@ -63,7 +63,7 @@ requirements of deep learning training and the mobility of the modern researcher
 
 ---
 
-2. System Overview
+## 2. System Overview
 
 To realize the vision of a mobile-first research workflow , we engineered Research Agent
 Mobile as a dual-component distributed system. The architecture is designed to bridge
@@ -184,54 +184,104 @@ loop” supervision for otherwise autonomous research workflows.
 
 ## 4. Results
 
-<!-- 
-Placeholder — fill in as results become available:
+The Research Journey page provides an auditable, high-level view of how research activities progress from conversation to execution and analysis. The following components support transparency, reproducibility, and retrospective analysis of the experimental process.
 
-- Usability study results or user feedback
-- Case study: catching a real failure from mobile
-- Comparison of response time vs. traditional desktop-only workflow
-- Demo GIFs or video walkthrough
+### 4.1 Research Journey
 
-Include: key figures, tables, or before/after comparisons
--->
+The following video demonstrates the Research Journey interface in use: the Dependency Map, Stages, Cost Hotspots, Failure Paths, and related components.
 
-*Coming soon.*
+<video controls width="100%" style="max-width: 720px;">
+  <source src="video/research-journey-demo.mov" type="video/quicktime">
+  <source src="video/research-journey-demo.mp4" type="video/mp4">
+  Your browser does not support the video tag. You can <a href="video/research-journey-demo.mov">download the video</a>.
+</video>
+*Research Journey demonstration (screen recording).*
+
+**Journey Dependency Map.** The Dependency Map is a directed node-link diagram that encodes the causal and sequential relationships among research artefacts. Nodes are classified by type—Chat (conversational prompts), Run (executed experiments), Chart (visualisations), and Decision (critical junctures)—and laid out from left to right to reflect the flow: Chat → Run → Chart/Decision. Edges are distinguished as explicit (direct, solid) or inferred (contextual, dashed), clarifying which links are user-specified versus derived. The map makes the lineage from ideas to experiments and from experiments to analyses visible at a glance, supporting interpretability and auditability of the research trajectory. Interactive controls (zoom, reset view, clear focus) allow users to inspect specific subgraphs and reduce visual clutter.
+
+![Journey Dependency Map](figure/journey-dependency-map.png)
+*Figure 1: Journey Dependency Map — a directed graph of research artefacts (Chat, Run, Chart, Decision) with left-to-right flow from conversational prompts to experiment runs and analyses. Arrows indicate causal links between nodes.*
+
+![Journey Dependency Map on hover](figure/journey-dependency-map-hover.png)
+*Figure 2: Journey Dependency Map on hover — tooltip or detail view shown when hovering over a node or edge, revealing additional context (e.g., node label, status, or relation type) for inspection without leaving the map.*
+
+**Journey Stages.** The Journey Stages component presents a chronological, stage-based account of the research process. Stages are ordered top-down so that each stage reflects a coherent set of actions or attempts, often in response to outcomes from the previous stage. Within each stage, individual steps are listed with their type (e.g., Chat, Run), completion status (completed or failed), and contextual origin. A dedicated “How steps are connected” section explicates causal links and dependencies between steps, enhancing traceability and reproducibility.
+
+![Journey Stages](figure/journey-stages.png)
+*Figure 3: Journey Stages — chronological stages of the research process with individual steps (e.g., Chat, Run), completion status (completed or failed), and a section describing how steps are connected.*
+
+**Cost Hotspots.** This component identifies and summarises resource-intensive activities during experimentation. It displays training runs or experimental phases in cards with task descriptions and quantitative metrics: efficiency, effort (e.g., duration), and cost. The component documents the resource profile of key activities, enabling informed decisions about future resource allocation and methodological changes.
+
+![Cost Hotspots](figure/cost-hotspots.png)
+*Figure 4: Cost Hotspots — list of resource-intensive training runs or phases with task descriptions and metrics (efficiency, effort, cost) for each entry.*
+
+**Failure Paths.** Failure Paths logs and surfaces instances where computational tasks failed due to resource unavailability. Each failure is shown in a distinct card with a description of the run and the reason for failure (e.g., no GPUs available). The component provides an auditable record of operational impediments and supports identification of systemic bottlenecks.
+
+![Failure Paths](figure/failure-paths.png)
+*Figure 5: Failure Paths — alert list of runs that failed due to resource unavailability (e.g., no GPUs available), with run name and failure reason per card.*
+
+**Next Directions, What Worked, and Costly Paths.** Three related components support forward planning and learning from outcomes. *Next Directions* offers prescriptive guidance for subsequent steps (e.g., clustering failed runs by failure type, generating at least one chart per completed run). *What Worked* aggregates successful outcomes—validated methods and effective configurations—forming a knowledge base for replication. *Costly Paths* records experimental directions that consumed resources without yielding desired results, helping avoid re-exploring unproductive avenues.
+
+![Next Directions, What Worked, and Costly Paths](figure/next-directions-what-worked-costly-paths.png)
+*Figure 6: Next Directions (prescriptive guidance for subsequent steps), What Worked (record of successful outcomes), and Costly Paths (record of resource-intensive but unproductive directions).*
+
+**Timeline.** The Timeline provides a chronological, tabular log of activities. Each row includes: *When* (timestamp), *Step* (e.g., Chat), *Who did it* (e.g., User), *What happened*, *Run status* (where applicable), and *Details*. The “Who did it” column is filterable. The Timeline offers a granular, auditable record of interactions and system states for transparency and retrospective analysis.
+
+![Timeline](figure/timeline.png)
+*Figure 7: Timeline — tabular log of Research Journey events with columns When, Step, Who did it, What happened, Run status, and Details; the "Who did it" column is filterable.*
+
+### 4.2 MCP Integration
+
+Model Context Protocol (MCP) integration and broader agentic control loops are under active development. Once operational, they will enable the agent to connect with new libraries, custom scripts, and data sources through a universal interface without core backend refactoring.
+
+### 4.3 User Experience
+
+Beyond the core architecture, the team refined the user experience of the chat interface through targeted improvements. Early work focused on correctness and polish: a bug causing assistant responses to appear duplicated for short user inputs was patched, and code outputs were updated to render inside syntax-highlighted boxes. A three-dot context menu was added to each chat entry, exposing options to save, reference, or archive a session; saved chats appear in a dedicated section at the top of the sidebar.
+
+A highlight-to-reply feature allows users to select any portion of the assistant’s response to trigger an inline reply button, inserting the quoted excerpt as a reference chip. Streaming output uses sticky auto-scrolling: the chat view follows new tokens when the user is near the bottom, pauses if they scroll up, and resumes when they scroll back down—preserved correctly when switching away from and returning to an actively streaming session.
+
+Session management was improved with AI-generated chat titles (via OpenCode) and an inline rename feature. Contextually generated follow-up prompt suggestions appear as clickable pill buttons beneath the assistant’s most recent message. A session selector dropdown, runs dropdown for associating experiments with chat context, and a context length estimator give users visibility into session state and model context usage. A regression that caused chat text to stop rendering in agent mode following Wild Loop changes was identified and fixed.
 
 ---
 
-## 5. Conclusion
+## 5. Discussion
 
-<!-- 
-Wrap up with impact and future direction:
+**Interpretation.** The Research Journey components collectively address a gap left by conventional experiment trackers. Tools such as TensorBoard or WandB focus on metric time series and run metadata but do not explicitly model the *causal* relationship between user intent (e.g., a chat prompt), the resulting runs, and downstream artefacts (charts, decisions). The Journey Dependency Map makes this lineage visible as a directed graph, supporting both quick orientation and retrospective audit. The separation of explicit versus inferred links clarifies which connections are user-specified versus system-derived, which is important for trust and for debugging the agent’s reasoning. The Timeline, Stages, Cost Hotspots, and Failure Paths provide complementary views: a fine-grained event log, a stage-based narrative, a resource ledger, and a failure digest. Together with Next Directions, What Worked, and Costly Paths, the system does not only record history but also surfaces prescriptive guidance and learned outcomes—aligning with the claim that the platform functions as an “active, intelligent partner” rather than a passive dashboard.
 
-- Research Agent Mobile shifts ML experiment management from "check when
-  you're at your desk" to "stay in control from anywhere."
-- By combining a mobile-first interface with an AI agent that understands
-  your experiments, researchers can catch failures faster, waste less compute,
-  and iterate more quickly.
-- Future work: expanded MCP tool integrations, multi-user collaboration,
-  deeper anomaly detection models.
--->
+**Limitations.** Several limitations should be noted. First, we have not yet reported formal user studies or quantitative measures of task completion time, error recovery, or user satisfaction; the value of the dependency map and reflection panels is supported by design rationale and component-level description rather than controlled evaluation. Second, the system depends on backend availability and, where Next Directions or other features use an LLM, on the quality and latency of that service; heuristic fallbacks mitigate but do not eliminate this dependency. Third, the scalability of the Journey graph and the Timeline has not been stress-tested for very long projects with hundreds of runs and thousands of events; large histories may require aggregation, filtering, or summarization to remain usable on mobile viewports. Finally, MCP integration and broader agentic control loops are still under development; discussion of agent autonomy and human-in-the-loop boundaries will be strengthened once those components are fully operational and evaluated.
+
+**Implications.** The work contributes to the broader goal of decoupling experiment oversight from the desktop. By providing a hierarchical, semantic view of the research process, the Research Journey can reduce the cognitive load of context-switching between runs and help researchers avoid repeating costly or unproductive paths. The combination of real-time monitoring (via the Wild Loop and event queue) with retrospective analysis (via the Journey) supports a workflow in which the researcher intervenes when necessary but need not remain tethered to a workstation. For AI-assisted research workflows, the system illustrates how an LLM-backed agent can be given read-and-write access to the experiment context while still leaving critical decisions and interpretations to the human, with the Journey serving as a shared record of what was done and why.
+
+**Future work.** Planned extensions include: (1) completing and evaluating the MCP integration and Wild Loop configurations so that the agent’s tool use and autonomy can be reported and tuned systematically; (2) conducting user studies to measure the impact of the Research Journey and mobile interface on time-to-detection of failures and on researchers’ perceived workload; (3) extending the Journey to support export or integration with external tools (e.g., for reproducibility packages or papers); and (4) exploring aggregation and summarization strategies for large journeys so that the interface remains effective as project history grows.
+
+---
+
+## 6. Conclusion
+
+Machine learning research is increasingly constrained not by compute availability but by the researcher’s ability to maintain continuous oversight of long-running, distributed experiments. Desktop-bound tools and reactive dashboards leave a critical blind spot: when researchers are away from their workstations, failures and anomalies can go undetected for hours, wasting resources and slowing iteration. This report presented **Research Agent Mobile**, a mobile-first, agent-integrated system designed to close that gap by providing a remote control plane for monitoring and steering experiments in real time.
+
+The system combines a responsive Next.js frontend with a FastAPI backend that orchestrates jobs via tmux, embeds an LLM agent with read-and-write access to the experiment context, and supports autonomous monitoring through the configurable Wild Loop and MCP-based tool integration. We described the design and implementation of the user interface—including mobile-first layout, state-managed chat with interruptible execution, and transparent rendering of the agent’s cognitive chain—and of the **Research Journey**, a hierarchical, temporal view that functions as a “semantic git” for experimental logic. The Journey’s components—the Dependency Map, Stages, Cost Hotspots, Failure Paths, Next Directions, What Worked, Costly Paths, and Timeline—together provide both an auditable record of the research process and prescriptive surfaces for reflection and planning.
+
+By decoupling experiment oversight from the desktop and pairing it with an intelligent agent that can reason over logs, flag anomalies, and suggest next steps, Research Agent Mobile demonstrates a viable path toward high-velocity experimentation without the cognitive burden of constant manual supervision. We have outlined limitations and future work, including formal user studies and full evaluation of the agentic control loops. We hope this work contributes to the growing effort to make AI-assisted research workflows more flexible, transparent, and actionable for researchers operating under real-world constraints.
 
 ---
 
 ## Team
 
-| Name | Contributions |
-|------|--------------|
-| **Hargen Zheng** | Front-end/back-end integration, real-time streaming, message editing |
-| **Charlie Sun** | Chat UX features, smart follow-up questions, research journey |
-| **Avi Mehta** | Chat streaming, saved chats, WandB integration, MCP server |
-| **Mihir Joshi** | Chat selectors, token estimation, run selection, WandB & MCP |
-| **Hao Zhang** | Mentor and advisor |
+**Hargen Zheng**  
+Integrated front-end and back-end systems to support more advanced user interactions. Key contributions: real-time auto-scrolling logic for streaming output, and a message-edit feature that lets users refine previous prompts seamlessly. Currently contributing to the MCP server.
 
----
+**Charlie Sun**  
+Shipped multiple chat and UX improvements: AI-generated chat titles (user summaries), smart follow-up questions from the assistant, and chat rename functionality. Currently focused on the Research Journey and agentic workflows.
 
-## Acknowledgements
+**Avi Mehta**  
+Improved the chat experience across several PRs: fixed and debugged chatbot text streaming, saved/favorite chats, clickable highlight-to-reply, blinking cursor in the textbox, and code outputs in syntax-highlighted boxes. Currently working on WandB chart integration and the MCP server.
 
-<!-- 
-Thank your mentor, course staff, and anyone who helped.
--->
+**Mihir Joshi**  
+Added chat selectors, token usage estimation, and run selection dropdowns to improve navigation and context awareness. Also contributing to WandB chart integration and the MCP server.
+
+**Hao Zhang**  
+Mentor and advisor.
 
 ---
 

@@ -12,6 +12,18 @@ This repository contains the source code for the public-facing project website f
 - Mihir Joshi
 - Hao Zhang (Mentor)
 
+## Local preview
+
+Requires Ruby 3.x: `brew install ruby@3.3`. In each new terminal, run the export first (or add to `~/.zshrc`):
+
+```bash
+export PATH="/opt/homebrew/opt/ruby@3.3/bin:$PATH"
+bundle install
+bundle exec jekyll serve
+```
+
+Open http://localhost:4000
+
 ## Links
 
 - **Project Website:** [https://charliespy.github.io/ResearchAgentCapstoneWebsite/](https://charliespy.github.io/ResearchAgentCapstoneWebsite/)
