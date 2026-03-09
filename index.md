@@ -253,7 +253,12 @@ The following video demonstrates the Research Journey interface in use: the Depe
 
 ### 4.2 MCP Integration
 
-Model Context Protocol (MCP) integration and broader agentic control loops are under active development. Once operational, they will enable the agent to connect with new libraries, custom scripts, and data sources through a universal interface without core backend refactoring.
+**Agent & MCP integration.** The agent and MCP (Model Context Protocol) are integrated through a structured run-management layer and an autonomous agent loop. The following describes the protocol and the loop design.
+
+**Model Context Protocol (MCP).** A FastMCP server exposes schema-validated run-management tools (*create_run* with configurable launch policies, *start_run*) so the agent invokes backend capabilities via structured tool calls instead of ad-hoc commands. Runs execute in tmux-backed windows with streamed log endpoints, providing full observability into every agent-initiated experiment. The diagram below summarizes the bidirectional interaction between the Agent and MCP.
+
+**Wild Loop V2.** The autonomous execution layer is structured as an autonomous, multi-iteration agent loop with *plan–execute–reflect* stages. The planning pass explores the codebase and builds a task checklist. Execution iterations tackle one task each with a fresh agent context. A built-in struggle detector identifies stalled progress and overly short iterations. On completion, a reflection step evaluates outcomes, optionally continues the loop, and extracts reusable memories for future sessions. Every iteration auto-commits to Git and logs to a structured iteration journal. Users control autonomy level (*cautious* / *balanced* / *full*) and can steer or reorder pending agent actions through a drag-and-drop priority event queue.
+
 
 ### 4.3 User Experience
 
