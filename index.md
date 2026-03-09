@@ -278,7 +278,7 @@ Shipped multiple chat and UX improvements: AI-generated chat titles (user summar
 Improved the chat experience across several PRs: fixed and debugged chatbot text streaming, saved/favorite chats, clickable highlight-to-reply, blinking cursor in the textbox, and code outputs in syntax-highlighted boxes. Currently working on WandB chart integration and the MCP server.
 
 **Mihir Joshi**  
-Implemented multiple UI/UX improvements: Added chat selectors, token usage estimation, and run selection dropdowns to improve navigation and context awareness. Also contributing to the WandB chart integration and the MCP server.
+Implemented multiple feature improvements and changes, most notably adding chat selectors, token usage estimation, and run selection dropdowns to improve navigation and context awareness. Also contributed to the WandB chart integration and the MCP server.
 
 **Hao Zhang**  
 Mentor and advisor.
