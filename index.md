@@ -23,6 +23,12 @@ description: A Mobile-First Agentic Interface for Monitoring and Steering Machin
 
 ---
 
+## Abstract
+
+Modern machine learning research increasingly relies on long-running, resource-intensive training pipelines that often span days or weeks. While computational capacity has scaled dramatically, tools for experiment oversight have remained largely desktop-bound and reactive. As a result, researchers frequently discover failures—such as hyperparameter divergence, stalled runs, or infrastructure crashes—long after they occur, leading to wasted compute and slowed research iteration. We present **Research Agent Mobile**, a mobile-first, agent-integrated system for real-time monitoring and intervention in machine learning experiments. The system combines a Next.js-based responsive frontend with a FastAPI backend that orchestrates training jobs via tmux, integrates with OpenCode for large language model (LLM) reasoning, and supports autonomous monitoring through a configurable “Wild Loop” control architecture. Unlike passive dashboards, the system enables semantic reasoning over logs, proactive anomaly detection, and remote intervention from mobile devices.
+
+---
+
 ## One-screen elevator pitch
 
 **Goal.** Research Agent Mobile gives researchers a **mobile control plane** for their ML experiments: monitor runs, get context-aware alerts, and take action (stop, restart, launch sweeps) from a phone—without being tied to a desk.
@@ -72,6 +78,8 @@ terventions such as stopping a failing run, restarting a stalled job, or launchi
 hyperparameter sweep without ever returning to a workstation. By facilitating these inter-
 actions through a mobile-first interface, the system bridges the gap between the demanding
 requirements of deep learning training and the mobility of the modern researcher .
+
+Ultimately, this work contributes to the emerging field of AI-assisted research workflows by demonstrating how autonomous agents can augment human oversight. By shifting the paradigm from constant manual monitoring to intelligent, remote management, Research Agent Mobile allows researchers to maintain high-velocity experimentation cycles without the cognitive load of constant desktop supervision.
 
 ### Scope
 
