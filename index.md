@@ -9,15 +9,27 @@ description: A Mobile-First Agentic Interface for Monitoring and Steering Machin
 **A mobile-first, AI-powered control center for machine learning experiments — monitor, debug, and steer your training runs from anywhere.**
 
 *Hargen Zheng, Charlie Sun, Avi Mehta, Mihir Joshi*
+
 *Mentored by Hao Zhang*
+
 *UC San Diego, DSC 180B Capstone — 2025–2026*
 
-### Project Links
+## Project Links
 
 - [Live Demo](#)
 - [Technical Report](#)
 - [Poster](#)
 - [GitHub Repository](https://github.com/hao-ai-lab/research-agent)
+
+---
+
+## One-screen elevator pitch
+
+**Goal.** Research Agent Mobile gives researchers a **mobile control plane** for their ML experiments: monitor runs, get context-aware alerts, and take action (stop, restart, launch sweeps) from a phone—without being tied to a desk.
+
+**Why it matters.** Long training runs and desktop-only tools (SSH, TensorBoard) create a blind spot: when you’re away, failures and divergences can go unnoticed for hours, wasting compute and slowing iteration. Closing the gap between “something went wrong” and “someone can act” reduces wasted credits and keeps the research loop moving, no matter where the researcher is.
+
+**Target users:** ML researchers and lab teams who run long-running or multi-run experiments and need to supervise and intervene remotely.
 
 ---
 
@@ -60,6 +72,11 @@ terventions such as stopping a failing run, restarting a stalled job, or launchi
 hyperparameter sweep without ever returning to a workstation. By facilitating these inter-
 actions through a mobile-first interface, the system bridges the gap between the demanding
 requirements of deep learning training and the mobility of the modern researcher .
+
+### Scope
+
+- **In scope (this project):** Single-user mobile control plane; WandB-backed charts; Research Journey (Dependency Map, Stages, Cost Hotspots, Failure Paths, Next Directions, What Worked, Costly Paths, Timeline); chat interface with agent; tmux-backed job orchestration; UX improvements described in §4.3.
+- **Out of scope (this project):** Formal user studies; production auth or multi-tenancy; support for non-WandB loggers; stress-tested scalability for very large histories. See §5 (Limitations) for details.
 
 ---
 
@@ -184,6 +201,8 @@ loop” supervision for otherwise autonomous research workflows.
 
 ## 4. Results
 
+**Key results.** We achieved the following: (1) A working mobile-first control plane (monitor, alert, intervene) built with Next.js, FastAPI, and tmux. (2) A fully implemented and demonstrated Research Journey—Dependency Map, Stages, Cost Hotspots, Failure Paths, Next Directions, What Worked, Costly Paths, and Timeline—with video and figures below. (3) Chat and UX improvements (streaming, highlight-to-reply, session management, and related features) as described in §4.3. (4) The Research Journey provides an auditable, causal view of the research process that tools like TensorBoard do not. MCP integration and full Wild Loop evaluation remain in progress and are not reported as outcomes here.
+
 The Research Journey page provides an auditable, high-level view of how research activities progress from conversation to execution and analysis. The following components support transparency, reproducibility, and retrospective analysis of the experimental process.
 
 ### 4.1 Research Journey
@@ -230,6 +249,8 @@ The following video demonstrates the Research Journey interface in use: the Depe
 ![Timeline](figure/timeline.png)
 *Figure 7: Timeline — tabular log of Research Journey events with columns When, Step, Who did it, What happened, Run status, and Details; the "Who did it" column is filterable.*
 
+**How to interpret the Research Journey.** Use the following as a guide to what is actionable versus what to treat as suggestive: (1) **Dependency Map** — Solid edges are user-specified links; dashed edges are inferred. Treat inferred links as hypotheses to verify when auditing. (2) **Cost Hotspots / Costly Paths** — Use for resource allocation and to avoid repeating expensive, low-value directions; they are not a substitute for domain judgment on scientific merit. (3) **Failure Paths** — Check here first when a run is stuck or missing; supports bottleneck analysis (e.g. recurring “no GPUs”). (4) **Next Directions / What Worked** — LLM-generated; use as suggestions, not ground truth, and validate against your own goals and constraints. (5) **Timeline** — Fine-grained audit trail; filter by “Who did it” to separate user vs system actions.
+
 ### 4.2 MCP Integration
 
 Model Context Protocol (MCP) integration and broader agentic control loops are under active development. Once operational, they will enable the agent to connect with new libraries, custom scripts, and data sources through a universal interface without core backend refactoring.
@@ -241,6 +262,9 @@ Beyond the core architecture, the team refined the user experience of the chat i
 A highlight-to-reply feature allows users to select any portion of the assistant’s response to trigger an inline reply button, inserting the quoted excerpt as a reference chip. Streaming output uses sticky auto-scrolling: the chat view follows new tokens when the user is near the bottom, pauses if they scroll up, and resumes when they scroll back down—preserved correctly when switching away from and returning to an actively streaming session.
 
 Session management was improved with AI-generated chat titles (via OpenCode) and an inline rename feature. Contextually generated follow-up prompt suggestions appear as clickable pill buttons beneath the assistant’s most recent message. A session selector dropdown, runs dropdown for associating experiments with chat context, and a context length estimator give users visibility into session state and model context usage. A regression that caused chat text to stop rendering in agent mode following Wild Loop changes was identified and fixed.
+
+![Chatbot input with cursor and reference chips](figure/chatbot-cursor-refs.png)
+*Figure 8: Chat input with visible blinking cursor and reference chips (@chart) — the cursor indicates focus for typing, and reference chips render as distinct pills without overlap.*
 
 ---
 
